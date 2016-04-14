@@ -3,6 +3,7 @@ print(" - you should drag love_api.lua & modules/ from love-api-0.10.1 into this
 print(" - you also need to make an api/ directory. we'll overwrite if we have to.")
 
 local api = require("love_api")
+local version=assert(api.version)
 
 -- references:
 --  original LuaDoc for Koneki (LDT before data format change): https://github.com/RamiLego4Game/LOVELuaDoc-0.9.0
@@ -22,7 +23,7 @@ end
 local patchFun = require("patch")
 patchFun(api)
 
--- typeFQN format: [type name] = fully qualified name (e.g. ["object"] = "love#Object") 
+-- typeFQN format: [type name] = fully qualified name (e.g. ["object"] = "love#Object")
 typeFQN = {}
 -- add basic lua types
 typeFQN["boolean"] = "#boolean"
@@ -108,7 +109,7 @@ function copyfile(src, dst)
   local srcf = io.open(src, "rb")
   local src_contents = srcf:read("*all")
   srcf:close()
-  
+
   local dstf = io.open(dst, "wb")
   dstf:write(src_contents)
   dstf:close()
@@ -121,69 +122,69 @@ local function iLoveIt()
 
   -- let's write out a love.lua, referencing all of the modules.
   print("Writing api/love.lua...")
-  
+
   -- (...and we'll start it with the contents of builtins/love.lua.HEADER)
   local lfhf = io.open("builtins/love.lua.HEADER", "r")
   local love_file_header = lfhf:read("*all")
   lfhf:close()
-  
+
   local love_file = io.open("api/love.lua", "w")
   love_file:write(love_file_header)
   love_file:write("\n")
-  
+
   for _, mod in ipairs(api.modules) do
     love_file:write("---\n")
     love_file:write("-- " .. firstLine(mod.description) .. "\n")
     love_file:write("-- @field [parent = #love] " .. mod.name .. "#" .. mod.name .. " " .. (mod._name or mod.name) .. "\n")
     love_file:write("-- \n\n")
   end
-  
+
   -- learn base love module's type names
   api.name = "love" -- bleh
   learnTypesAndEnums(api)
-  
+
   -- learn types from everything else
   for _, mod in ipairs(api.modules) do
     learnTypesAndEnums(mod)
   end
-  
+
   --write out everything from base love module
   love_file:write(describeAllTypes(api))
-  
+
   love_file:write(describeAllFuncsAndCallbacks(api))
-  
+
   love_file:write("\nreturn nil\n")
-  
+
   love_file:close()
-  
+
   print("Wrote api/love.lua OK")
-  
-  
+
+
   -- now, write out the other modules.
   for _, mod in ipairs(api.modules) do
     print("Writing api/" .. mod.name .. ".lua...")
     local file = io.open("api/" .. mod.name .. ".lua", "w")
-    
+
     file:write("--------------------------------------------------------------------------------\n")
     if mod.description then file:write(commentify(mod.description)) end
     file:write("-- \n")
     file:write("-- @module " .. mod.name .. "\n")
     file:write("-- \n\n")
-    
+
     file:write(describeAllTypes(mod))
-    
+
     file:write(describeAllFuncsAndCallbacks(mod))
-    
+
     file:write("\nreturn nil\n")
-    
+
     file:close()
     print("Wrote api/" .. mod.name .. ".lua OK")
   end
 
-  
+
   print("\nEverything's going well! Now for the busywork.")
   print("Copying all files matching builtins/*.lua to api/*.lua...")
-  
+
   local toCopy = {}
   local sawGlobal = false
   for _, maybe in ipairs(scandir("builtins")) do
@@ -195,22 +196,22 @@ local function iLoveIt()
   if #toCopy == 0 then
     error("... You do have .lua files in builtins/, right? I can't find anything to copy!")
   end
-  
+
   print("So, that's {" .. table.concat(toCopy, ", ") .. "}.lua.")
-  
+
   if not sawGlobal then
     error("Huh? No global.lua? That's really important for LDT. Please locate it, and stuff it in builtins/!")
   end
-  
+
   for _, fn in ipairs(toCopy) do
     copyfile("builtins/" .. fn .. ".lua", "api/" .. fn .. ".lua")
   end
 
   print("Copy OK")
-  
-  print("\nDone! Zip up the *contents* of api/, and that right there is your api.zip.")
-  print("One of the two essential herbs and spices of an LDT Execution Environment!")
-  
+
+  -- print("\nDone! Zip up the *contents* of api/, and that right there is your api.zip.")
+  -- print("One of the two essential herbs and spices of an LDT Execution Environment!")
+
 end
 
 function learnTypesAndEnums(mod)
@@ -223,7 +224,7 @@ function learnTypesAndEnums(mod)
       typeFQN[t.name] = mod.name .. "#" .. t.name
     end
   end
-  
+
   -- enums are basically types, right?
   if mod.enums then
     for _, t in ipairs(mod.enums) do
@@ -238,20 +239,20 @@ end
 function describeAllTypes(mod)
   local pn = "#" .. mod.name
   local out = {}
-  
+
   if mod.types then
     for _, t in ipairs(mod.types) do
       table.insert(out, describeType(pn, t))
     end
   end
-  
+
   return table.concat(out)
 end
 
 function describeAllFuncsAndCallbacks(mod)
   local pn = "#" .. mod.name
   local out = {}
-  
+
   if mod.functions then
     for _, fun in ipairs(mod.functions) do
       for _, var in ipairs(fun.variants) do
@@ -259,7 +260,7 @@ function describeAllFuncsAndCallbacks(mod)
       end
     end
   end
-  
+
   if mod.callbacks then
     for _, fun in ipairs(mod.callbacks) do
       for _, var in ipairs(fun.variants) do
@@ -267,7 +268,7 @@ function describeAllFuncsAndCallbacks(mod)
       end
     end
   end
-  
+
   return table.concat(out)
 end
 
@@ -275,24 +276,24 @@ function describeType(parent, t)
   local name = t.name
   local shortDesc = firstLine(t.description)
   local longDesc = otherLines(t.description)
-  
+
   local sb = {}
   local function push(s) table.insert(sb, s) end
-  
+
   push("-------------------------------------------------------------------------------\n")
   push("-- ")
   push(shortDesc or name)
   push("\n")
-  
+
   if longDesc then
     push("-- \n")
     push(commentify(longDesc))
   end
-  
+
   push("-- @type ")
   push(name)
   push("\n")
-  
+
   if t.supertypes then
     for _, v in ipairs(t.supertypes) do
       push("-- @extends ")
@@ -302,12 +303,12 @@ function describeType(parent, t)
       push("\n")
     end
   end
-  
+
   -- Wheee, no fields ever on Love2d types!
   -- So we don't have to worry about that.
-  
+
   push("\n")
-  
+
   if t.functions then
     for _, fun in ipairs(t.functions) do
       -- ... all definitions need self parameters. bah.
@@ -318,18 +319,18 @@ function describeType(parent, t)
           name = 'self'
         })
         --Every function has now its own member with the sets of variants (aka overloads).
-        --We just push them out all, eclipse LDT (as of writing) just takes the last 
+        --We just push them out all, eclipse LDT (as of writing) just takes the last
         --variation it finds (as it just overwrites the table at the function index).
         push(describeFun("#" .. name, fun, var, parent))
       end
       --If you just want the first variant exported, uncomment this.
       --Or someone writes a fancy variant detection?!
-      --push(describeFun("#" .. name, fun, fun.variants[1], parent))  
+      --push(describeFun("#" .. name, fun, fun.variants[1], parent))
     end
   end
-  
+
   push("\n")
-  
+
   return table.concat(sb)
 end
 
@@ -338,27 +339,27 @@ function describeFun(parent, fun, var, dbg2)
   local shortDesc = firstLine(fun.description)
   local longDesc = otherLines(fun.description)
   local def = var
-  
+
   local sb = {}
   local function push(s) table.insert(sb, s) end
-  
+
   push("-------------------------------------------------------------------------------\n")
-  
+
   push("-- ")
   push(shortDesc or name)
   push("\n")
-  
+
   if longDesc then
     push("-- \n")
     push(commentify(longDesc))
   end
-  
+
   push("-- @function[parent=")
   push(parent)
   push("] ")
   push(name)
   push("\n")
-  
+
   if def.arguments then
     for _, arg in ipairs(def.arguments) do
       push("-- @param ")
@@ -372,7 +373,7 @@ function describeFun(parent, fun, var, dbg2)
       push("\n")
     end
   end
-  
+
   if def.returns then
     for _, ret in ipairs(def.returns) do
       push("-- @return ")
@@ -386,12 +387,48 @@ function describeFun(parent, fun, var, dbg2)
       push("\n")
     end
   end
-  
+
   push("-- \n\n")
-  
+
   return table.concat(sb)
 end
 
 -- Call main function.
 iLoveIt()
 
+-- build EE zip directly (OSX only)
+assert(package.config:sub(1,1)=='/') -- no windows
+
+local rockspec=string.format([[
+package = "LOVE2D"
+version = "%s"
+flags = { ee = true }
+description = {
+  summary = "LOVE2D %s Execution Environment",
+  detailed = "LOVE2D %s Execution Environment Support",
+  licence = "zlib/libpng",
+  homepage = "http://www.love2d.org",
+}
+api = {
+  file = "api.zip"
+}
+documentation = {
+  dir = "docs"
+}
+templates = {
+  default = {
+    buildpath = {"/"},
+    openfile = "main.lua"
+  }
+}
+]],version,version,version)
+print('Writing rockspec for version',version)
+io.open('ee/.rockspec','w'):write(rockspec):close()
+
+for _,cmd in ipairs{
+'rm love-api-ldt-*.zip',
+'cd api;zip -r ../ee/api.zip .',
+'cd ee;zip -r ../love-eclipse-ldt-'..version..'.zip .',
+} do print('execute:',cmd) os.execute(cmd) end
+
+print('Done. LDT EE: love-eclipse-ldt-'..version..'.zip')

@@ -3,12 +3,17 @@
 
 # output files
 api/*.lua
+ee/api.zip
+love-eclipse-ldt*.zip
 
 # the incredibly important love-api module!
 modules/
 love_api.lua
+# modules symlink
+modules
 
 # eclipse garbage
 .buildpath
 .project
 .settings/
+
