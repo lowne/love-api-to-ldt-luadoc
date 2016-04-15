@@ -20,17 +20,17 @@
 ------------------------------------------------------------------------------
 -- This library provides generic functions for string manipulation.
 -- This is a global variable which hold the preloaded @{string} module.
--- @field[parent = #global] string#string string preloaded module
+-- @field[parent = #global] string#string _string preloaded module
 
 ------------------------------------------------------------------------------
 -- This library provides generic functions for table manipulation.
 -- This is a global variable which hold the preloaded @{table} module.
--- @field[parent = #global] table#table table preloaded module
+-- @field[parent = #global] table#table _table preloaded module
 
 ------------------------------------------------------------------------------
 -- This library is an interface to the standard C math library.
 -- This is a global variable which hold the preloaded @{math} module.
--- @field[parent = #global] math#math math preloaded module
+-- @field[parent = #global] math#math _math preloaded module
 
 ------------------------------------------------------------------------------
 -- The I/O library provides function for file manipulation.
@@ -91,11 +91,11 @@
 --
 -- Usually, `error` adds some information about the error position at the
 -- beginning of the message. The `level` argument specifies how to get the
--- error position.  
+-- error position.
 -- With level 1 (the default), the error position is where the
--- `error` function was called.  
+-- `error` function was called.
 -- Level 2 points the error to where the function
--- that called `error` was called; and so on.  
+-- that called `error` was called; and so on.
 -- Passing a level 0 avoids the addition of error position information to the message.
 -- @function [parent=#global] error
 -- @param #string message an error message.
@@ -128,7 +128,7 @@
 -- Use to iterate over a table by index.
 -- Returns three values: an iterator function, the table `t`, and 0,
 -- so that the construction :
--- 
+--
 --     for i,v in ipairs(t) do *body* end
 -- will iterate over the pairs (`1,t[1]`), (`2,t[2]`), ..., up to the
 -- first integer key absent from the table.
@@ -158,8 +158,8 @@
 
 -------------------------------------------------------------------------------
 -- Similar to `load`, but gets the chunk from the given string.
--- To load and run a given string, use the idiom  
--- 
+-- To load and run a given string, use the idiom
+--
 --     assert(loadstring(s))()
 -- When absent, `chunkname` defaults to the given string.
 -- @function [parent=#global] loadstring
@@ -193,10 +193,10 @@
 -- Use to iterate over a table.
 -- Returns three values: the `next` function, the table `t`, and nil,
 -- so that the construction :
--- 
+--
 --     for k,v in pairs(t) do *body* end
 -- will iterate over all key-value pairs of table `t`.
--- 
+--
 -- See function `next` for the caveats of modifying the table during its
 -- traversal.
 -- @function [parent=#global] pairs
@@ -229,7 +229,7 @@
 -- @function [parent=#global] rawequal
 -- @param v1
 -- @param v2
--- @return #boolean true if `v1` is equal to `v2`. 
+-- @return #boolean true if `v1` is equal to `v2`.
 
 -------------------------------------------------------------------------------
 -- Gets the real value of `table[index]`, without invoking any
@@ -243,7 +243,7 @@
 -------------------------------------------------------------------------------
 -- Sets the real value of `table[index]` to `value`, without invoking any
 -- metamethod. `table` must be a table, `index` any value different from nil,
--- and `value` any Lua value.  
+-- and `value` any Lua value.
 -- This function returns `table`.
 -- @function [parent=#global] rawset
 -- @param #table table
@@ -261,7 +261,7 @@
 -------------------------------------------------------------------------------
 -- Sets the environment to be used by the given function. `f` can be a Lua
 -- function or a number that specifies the function at that stack level: Level
--- 1 is the function calling `setfenv`. `setfenv` returns the given function.  
+-- 1 is the function calling `setfenv`. `setfenv` returns the given function.
 -- As a special case, when `f` is 0 `setfenv` changes the environment of the
 -- running thread. In this case, `setfenv` returns no values.
 -- @function [parent=#global] setfenv
@@ -273,12 +273,12 @@
 -- Sets the metatable for the given table. (You cannot change the metatable
 -- of other types from Lua, only from C.) If `metatable` is nil, removes the
 -- metatable of the given table. If the original metatable has a `"__metatable"`
--- field, raises an error.  
+-- field, raises an error.
 -- This function returns `table`.
 -- @function [parent=#global] setmetatable
--- @param #table table 
+-- @param #table table
 -- @param #table metatable
--- @return The first argument `table`. 
+-- @return The first argument `table`.
 
 -------------------------------------------------------------------------------
 -- Tries to convert its argument to a number. If the argument is already
@@ -313,13 +313,13 @@
 -- results of this function are "
 -- `nil`" (a string, not the value nil), "`number`", "`string`", "`boolean`",
 -- "`table`", "`function`", "`thread`", and "`userdata`".
--- @function [parent=#global] type
+-- @function [parent=#global] _type
 -- @param v any value.
 -- @return #string the type of `v`.
 
 -------------------------------------------------------------------------------
 -- Returns the elements from the given table. This function is equivalent to
--- 
+--
 --     return list[i], list[i+1], ..., list[j]
 -- except that the above code can be written only for a fixed number of
 -- elements. By default, `i` is 1 and `j` is the length of the list, as
@@ -350,15 +350,15 @@
 -- @param f function to be call in *protected mode*.
 -- @param err function used as error handler.
 -- @return #boolean true plus the result of `f` function if its call succeeds without errors.
--- @return #boolean,#string  false plus the result of `err` function. 
+-- @return #boolean,#string  false plus the result of `err` function.
 
 -------------------------------------------------------------------------------
 -- Creates a module. If there is a table in `package.loaded[name]`,
 -- this table is the module. Otherwise, if there is a global table `t`
--- with the given name, this table is the module. 
--- 
--- Otherwise creates a new table `t` and sets it as the value of the global 
--- `name` and the value of `package.loaded[name]`. 
+-- with the given name, this table is the module.
+--
+-- Otherwise creates a new table `t` and sets it as the value of the global
+-- `name` and the value of `package.loaded[name]`.
 --  This function also initializes `t._NAME` with the
 -- given name, `t._M` with the module (`t` itself), and `t._PACKAGE` with the
 -- package name (the full module name minus last component; see below). Finally,
